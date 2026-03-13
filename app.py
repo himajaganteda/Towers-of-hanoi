@@ -3,9 +3,28 @@ import time
 
 st.set_page_config(page_title="Tower of Hanoi Visualizer", layout="centered")
 
-st.title("🎮 Tower of Hanoi Visualizer")
+st.header("🎮 Tower of Hanoi Algorithm Visualizer")
+st.divider()
 
-# Take number of disks as text input
+# About Algorithm (directly visible)
+st.subheader("About the Algorithm")
+
+st.write("""
+The Tower of Hanoi is a classic recursive puzzle.
+
+Rules:
+• Only one disk can be moved at a time  
+• A larger disk cannot be placed on a smaller disk  
+• Move all disks from Tower A to Tower C using Tower B
+
+The optimal number of moves required is:
+
+Moves = 2ⁿ - 1
+""")
+
+st.divider()
+
+# Disk input
 n = st.text_input("Enter number of disks (3 - 6)", "3")
 
 try:
@@ -22,7 +41,7 @@ if n < 3 or n > 6:
 speed = 2
 
 
-# Generate Hanoi moves
+# Hanoi logic
 def hanoi(n, source, target, auxiliary, moves):
     if n == 1:
         moves.append((source, target))
@@ -34,16 +53,18 @@ def hanoi(n, source, target, auxiliary, moves):
 
 # Draw towers
 def draw_towers(towers):
+
     html = """
     <style>
+
     .container{
         display:flex;
         justify-content:space-around;
         align-items:flex-end;
         height:350px;
-        background:#0e1117;
+        background:#111827;
         padding:20px;
-        border-radius:10px;
+        border-radius:12px;
     }
 
     .tower{
@@ -64,6 +85,15 @@ def draw_towers(towers):
         z-index:1;
     }
 
+    .base{
+        position:absolute;
+        bottom:-10px;
+        width:120px;
+        height:10px;
+        background:white;
+        border-radius:4px;
+    }
+
     .disk{
         height:25px;
         margin:4px;
@@ -75,7 +105,9 @@ def draw_towers(towers):
         color:white;
         margin-top:5px;
         text-align:center;
+        font-weight:bold;
     }
+
     </style>
     """
 
@@ -85,12 +117,15 @@ def draw_towers(towers):
     labels = ["A","B","C"]
 
     for i, tower in enumerate(towers):
+
         html += '<div class="tower">'
         html += '<div class="rod"></div>'
+        html += '<div class="base"></div>'
 
         for disk in tower:
             width = 40 + disk*20
             color = colors[disk % len(colors)]
+
             html += f'<div class="disk" style="width:{width}px;background:{color}"></div>'
 
         html += f'<div class="label">Tower {labels[i]}</div>'
@@ -101,11 +136,11 @@ def draw_towers(towers):
     st.markdown(html, unsafe_allow_html=True)
 
 
-# Solve button
-if st.button("▶ Solve Tower of Hanoi"):
+# Start simulation
+if st.button("▶ Start Simulation"):
 
     moves = []
-    hanoi(n, "A", "C", "B", moves)
+    hanoi(n,"A","C","B",moves)
 
     towers = {
         "A": list(range(n,0,-1)),
@@ -121,8 +156,14 @@ if st.button("▶ Solve Tower of Hanoi"):
         towers[dst].append(disk)
 
         with placeholder.container():
-            st.subheader(f"Step {i+1} / {len(moves)} : Move disk {disk} from {src} → {dst}")
-            draw_towers([towers["A"], towers["B"], towers["C"]])
+
+            st.info(f"Move {i+1} / {len(moves)} : Move disk {disk} from {src} → {dst}")
+
+            draw_towers([
+                towers["A"],
+                towers["B"],
+                towers["C"]
+            ])
 
         time.sleep(speed)
 
@@ -131,3 +172,6 @@ if st.button("▶ Solve Tower of Hanoi"):
     # Reset button at bottom
     if st.button("🔄 Reset Puzzle"):
         st.rerun()
+
+st.divider()
+st.caption("Algorithm Visualizer Project | Built with Python + Streamlit")
