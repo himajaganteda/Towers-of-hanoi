@@ -5,13 +5,24 @@ st.set_page_config(page_title="Tower of Hanoi Visualizer", layout="centered")
 
 st.title("🎮 Tower of Hanoi Visualizer")
 
-# Select number of disks
-n = st.slider("Select number of disks", 3, 6, 3)
+# Take number of disks as text input
+n = st.text_input("Enter number of disks (3 - 6)", "3")
 
-# Speed control
-speed = st.slider("Animation Speed (seconds)", 0.5, 5.0, 2.0)
+try:
+    n = int(n)
+except:
+    st.warning("Please enter a valid number")
+    st.stop()
 
-# Function to generate moves
+if n < 3 or n > 6:
+    st.warning("Enter a number between 3 and 6")
+    st.stop()
+
+# Fixed animation speed
+speed = 2
+
+
+# Generate Hanoi moves
 def hanoi(n, source, target, auxiliary, moves):
     if n == 1:
         moves.append((source, target))
@@ -20,7 +31,8 @@ def hanoi(n, source, target, auxiliary, moves):
         moves.append((source, target))
         hanoi(n-1, auxiliary, target, source, moves)
 
-# Function to draw towers
+
+# Draw towers
 def draw_towers(towers):
     html = """
     <style>
@@ -88,11 +100,12 @@ def draw_towers(towers):
 
     st.markdown(html, unsafe_allow_html=True)
 
+
 # Solve button
 if st.button("▶ Solve Tower of Hanoi"):
 
     moves = []
-    hanoi(n,"A","C","B",moves)
+    hanoi(n, "A", "C", "B", moves)
 
     towers = {
         "A": list(range(n,0,-1)),
@@ -108,9 +121,13 @@ if st.button("▶ Solve Tower of Hanoi"):
         towers[dst].append(disk)
 
         with placeholder.container():
-            st.subheader(f"Step {i+1}: Move disk from {src} → {dst}")
+            st.subheader(f"Step {i+1} / {len(moves)} : Move disk {disk} from {src} → {dst}")
             draw_towers([towers["A"], towers["B"], towers["C"]])
 
         time.sleep(speed)
 
     st.success("✅ Puzzle Solved!")
+
+    # Reset button at bottom
+    if st.button("🔄 Reset Puzzle"):
+        st.rerun()
